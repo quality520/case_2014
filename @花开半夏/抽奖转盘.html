@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8" />
+  <meta name="Author" content="" />
+  <meta name="Keywords" content="" />
+  <meta name="Description" content="" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>抽奖</title>
+  <style>
+   #success{text-align:center;height:30px;margin-top:100px;}
+
+   #lottery{position:relative;width:200px;height:200px;margin:10px auto;}
+   #lottery>div{position:absolute;left:0;top:0;right:0;bottom:0;border:5px solid #CCC;border-radius:50%;margin:auto;}
+   #lottery>div>span{position:absolute;left:50%;top:0;width:18px;height:50%;margin-left:-9px;text-align:center;-webkit-transform-origin:50% 100%;}
+   #lottery>span{position:absolute;left:50%;top:40%;width:2px;height:10%;margin-left:-1px;background-color:red;}
+   #lottery>span:before{position:absolute;content:"";left:-4px;top:-5px;width:0;height:0;border:5px solid transparent;border-bottom-color:red;} 
+  </style>
+ </head>
+ <body> 
+  <div id="success">点击转盘抽奖</div>
+  <div id="lottery">
+    <div>
+    </div>
+    <span></span>
+  </div> 
+  <script>
+     function rotate(r){
+      var s=Math.sin(r*Math.PI/180).toFixed(4),
+          c=Math.cos(r*Math.PI/180).toFixed(4);
+      this.style.transform=this.style.webkitTransform=this.style.mozTransform=this.style.oTransform="matrix("+c+","+s+","+(-s)+","+c+",0,0)";
+    }
+
+     function Lottery(context)
+     {
+       this.r=0;
+       this.v=0.5;
+       this.vr=60;
+       this.rCount=8;
+       this.context=context;
+       this.t=0;
+       
+     }
+
+     Lottery.prototype={
+       run:function(btn){
+         var r=this.r,v=this.v,vr=this.vr,t=this.t,result=this.result,o=this.context.firstElementChild;
+         (function(){
+                      
+            v=r+540>t?Math.min(5,(t-r)/vr):Math.min(5,r/vr+0.5);
+             r+=v; 
+            
+           if(t-r<1)
+           {
+             rotate.call(o,t);
+             document.getElementById("success").innerHTML="中奖："+result;
+             btn.isRun=0;
+           }
+           else
+           {
+             rotate.call(o,r);
+             setTimeout(arguments.callee,17);
+           }
+         })();        
+       }
+     };
+
+    (function(){
+      var ly=document.getElementById("lottery"),
+          list=["盘古斧","昊天塔","炼妖壶","东皇钟","伏羲琴","昆仑镜","崆峒印","神农鼎","女娲石","轩辕剑"],
+          i=list.length,
+          r=360/i,
+          span=document.createElement("span"),
+          spn,
+          frg=document.createDocumentFragment();
+          while(i--)
+         {
+           spn=span.cloneNode(false);
+           spn.innerHTML=list[i];
+           rotate.call(spn,i*r);
+           frg.appendChild(spn);
+         }
+         ly.firstElementChild.appendChild(frg);
+
+         
+        var lty=new Lottery(ly);
+        ly.onclick=function(){
+          if(this.isRun)return;
+          var len=list.length,rnd=Math.random()*len|0;
+          lty.t=(len-rnd)*360/len+360*lty.rCount;
+          lty.result=list[rnd];
+          this.isRun=1;
+          document.getElementById("success").innerHTML="";
+          lty.run(this);
+        }
+    })();
+  </script>
+ </body>
+</html>
